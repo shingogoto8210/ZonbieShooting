@@ -30,7 +30,7 @@ public class RailMoveController : MonoBehaviour
     }
 
     /// <summary>
-    /// ˆÚ“®‚·‚é
+    /// ˆÚ“®
     /// </summary>
     public void Move()
     {
@@ -43,7 +43,7 @@ public class RailMoveController : MonoBehaviour
     }
 
     /// <summary>
-    /// ~‚Ü‚é
+    /// ’â~
     /// </summary>
     public void Stop()
     {
@@ -52,7 +52,7 @@ public class RailMoveController : MonoBehaviour
     }
 
     /// <summary>
-    /// Ä‚ÑˆÚ“®‚·‚é
+    /// ˆÚ“®ÄŠJ
     /// </summary>
     public void Resume()
     {

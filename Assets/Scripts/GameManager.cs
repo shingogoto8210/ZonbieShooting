@@ -8,9 +8,6 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     private RailMoveController railMoveController;
 
-    [SerializeField]
-    private RailPathData railPathData;
-
     public GameState currentGameState;
 
     void Start()
@@ -27,13 +24,15 @@ public class GameManager : MonoBehaviour
         Debug.Log("ゲーム開始");
 
         //移動開始
-        railMoveController.Move();
+        //railMoveController.Move();
 
-        //プレイ中は移動と停止操作可能
+        //プレイ中は移動と停止の操作可能
         StartCoroutine(railMoveController.ChangeMove());
     }
 
-    //DOPathが最後まで行ったら，次のRailPathDataがあるか確認する。
+    /// <summary>
+    /// 次のRailPathDataがあるか確認
+    /// </summary>
     public void CheckNextRailPathData()
     {
         //TODO 次のRailPathDataがあれば，そちらに進む
