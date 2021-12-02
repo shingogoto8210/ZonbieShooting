@@ -11,16 +11,16 @@ public class RayController : MonoBehaviour
     [SerializeField]
     private int[] layerMasks;
 
+    //Debug用
     [SerializeField]
     private string[] layerMasksStr;
 
-    [SerializeField]
     private PlayerController playerController;
 
-    
-    
-    void Start()
+    public void SetUpRayController(PlayerController playerController)
     {
+        this.playerController = playerController;
+
         //Layerの情報を文字列に変換し、Raycastメソッドで利用しやすい情報を変数として作成しておく
         layerMasksStr = new string[layerMasks.Length];
         for (int i = 0; i < layerMasks.Length; i++)
@@ -29,17 +29,11 @@ public class RayController : MonoBehaviour
         }
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        if (playerController.BulletCount > 0 && Input.GetMouseButton(0))
-        {
-            //発車時間の計測
-            StartCoroutine(ShootTimer());
-        }
-    }
-
-    private IEnumerator ShootTimer()
+    /// <summary>
+    /// 発射間隔
+    /// </summary>
+    /// <returns></returns>
+    public IEnumerator ShootTimer()
     {
         if (!isShooting)
         {
@@ -54,7 +48,7 @@ public class RayController : MonoBehaviour
     }
 
     /// <summary>
-    /// 弾の発射
+    /// 発射
     /// </summary>
     public void Shoot()
     {
@@ -73,7 +67,7 @@ public class RayController : MonoBehaviour
 
             if(target.TryGetComponent(out EnemyController enemyController))
             {
-                enemyController.AttackEnemy(playerController.bulletPower);
+                enemyController.CalculateEnemyHp(playerController.bulletPower);
             }
 
         }

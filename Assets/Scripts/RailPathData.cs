@@ -4,6 +4,6 @@ using UnityEngine;
 
 public class RailPathData : MonoBehaviour
 {
-    public Transform[] railPathDatas;
+    public RailPathDetail[] railPathDatas;
 
 }

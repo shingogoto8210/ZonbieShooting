@@ -10,6 +10,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField,Header("Å‘åHP")]
     private int maxHp;
 
+    //HP‚ÌƒvƒƒpƒeƒB
     public int Hp
     {
         get
@@ -29,6 +30,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField,Header("Å‘å’e”")]
     private int maxBulletCount;
 
+    //’e‚ÌƒvƒƒpƒeƒB
     public int BulletCount
     {
         set
@@ -45,19 +47,16 @@ public class PlayerController : MonoBehaviour
     [Header("UŒ‚”ÍˆÍ")]
     public float shootRange;
 
+    [Header("UŒ‚—Í")]
     public int bulletPower;
 
+    [Header("’e‚Ì”­ËŠÔŠu")]
     public int shootInterval;
 
-   
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        SetUpPlayer();
-    }
-
-    private void SetUpPlayer()
+    /// <summary>
+    /// PlayerController‚Ìİ’è
+    /// </summary>
+    public void SetUpPlayer()
     {
         if(maxHp == 0)
         {
@@ -71,7 +70,10 @@ public class PlayerController : MonoBehaviour
         BulletCount = maxBulletCount;
     }
 
-
+    /// <summary>
+    /// ’e”‚ÌŒvZ
+    /// </summary>
+    /// <param name="amount"></param>
     public void CalcBulletCount(int amount)
     {
         BulletCount += amount;

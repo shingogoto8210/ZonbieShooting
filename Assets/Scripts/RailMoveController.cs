@@ -6,9 +6,8 @@ using System.Linq;
 
 public class RailMoveController : MonoBehaviour
 {
-    public Tween tween;
+    private Tween tween;
 
-    [SerializeField]
     private RailPathData railPathData;
 
     private Vector3[] paths;
@@ -24,9 +23,10 @@ public class RailMoveController : MonoBehaviour
     /// RailMoveControllerの設定
     /// </summary>
     /// <param name="gameManager"></param>
-    public void SetUpRailMoveController(GameManager gameManager)
+    public void SetUpRailMoveController(GameManager gameManager,RailPathData railPathData)
     {
         this.gameManager = gameManager;
+        this.railPathData = railPathData;
     }
 
     /// <summary>
@@ -35,19 +35,20 @@ public class RailMoveController : MonoBehaviour
     public void Move()
     {
         //railPathDataからTransform型の配列を取得し，Vector３型に直して変数に代入
-        paths = railPathData.railPathDatas.Select(x => x.position).ToArray();
+        paths = railPathData.railPathDatas.Select(x => x.transform.position).ToArray();
 
         //Pathデータを順に進んでいき，最後のところで続きあるか確認。なければ終了。
-        tween = transform.DOPath(paths, moveTime).SetEase(Ease.Linear).OnComplete(() => gameManager.CheckNextRailPathData());
+        tween = transform.DOPath(paths, moveTime).SetEase(Ease.Linear).OnWaypointChange((index) => gameManager.CheckEvent(index)).OnComplete(() => gameManager.CheckNextRailPathData());
         Debug.Log("移動開始");
     }
 
     /// <summary>
-    /// 停止
+    /// 移動停止
     /// </summary>
     public void Stop()
     {
         tween.Pause();
+        isStop = true;
         Debug.Log("停止");
     }
 
@@ -57,10 +58,22 @@ public class RailMoveController : MonoBehaviour
     public void Resume()
     {
         tween.Play();
+        isStop = false;
         Debug.Log("移動再開");
     }
-    
-    //移動と停止を変更する
+
+    /// <summary>
+    /// tweenを破棄する
+    /// </summary>
+    public void KillTween()
+    {
+        tween.Kill();
+    }
+
+    /// <summary>
+    /// 移動と停止を変更する
+    /// </summary>
+    /// <returns></returns>
     public IEnumerator ChangeMove()
     {
         while (gameManager.currentGameState == GameState.Play)
@@ -69,14 +82,14 @@ public class RailMoveController : MonoBehaviour
             if (isStop == false && Input.GetKeyDown(KeyCode.Space))
             {
                 Stop();
-                isStop = true;
             }
+
             //停止中にスペースを押すと移動再開
             else if (isStop && Input.GetKeyDown(KeyCode.Space))
             {
                 Resume();
-                isStop = false;
             }
+
             yield return null;
         }
     }
