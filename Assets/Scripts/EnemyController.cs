@@ -7,26 +7,127 @@ public class EnemyController : MonoBehaviour
 {
     
     [SerializeField]
-    private int enemyHp;
-
-    [SerializeField]
-    private int attackPower;
+    private int enemyHp, attackPower;
 
     private NavMeshAgent agent;
 
-    [SerializeField]
     private PlayerController target;
 
+    private CharacterState state = CharacterState.Idle;
 
+    private Animator anim;
+
+    private float walkSpeed = 1.0f, runSpeed = 3.0f;
+
+    private AnimationManager animationManager;
+
+    public int attackDamage;
+
+    private void Start()
+    {
+        agent = GetComponent<NavMeshAgent>();
+        anim = GetComponent<Animator>();
+        animationManager = GetComponent<AnimationManager>();
+        target = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
+    }
     private void Update()
     {
-        if(target == null)
+        switch (state)
         {
-            return;
-        }
-        else
-        {
-            agent.destination = target.transform.position;
+            case CharacterState.Idle:
+
+                //アニメーションをリセット
+                animationManager.TurnOffTrigger(anim);
+                //目的地リセット
+                agent.ResetPath();
+
+                //確率で状態をWALKに変更
+                if (Random.Range(0,5000) < 5)
+                {
+                    state = CharacterState.Walk;
+                }
+
+                //敵の距離が15より小さいとき走って追跡
+                if (DistanceToPlayer() < 15)
+                {
+                    state = CharacterState.Run;
+                }
+
+                break;
+
+            case CharacterState.Walk:
+
+                //確率で状態をIDLEに変更
+                if (Random.Range(0, 5000) < 5)
+                {
+                    state = CharacterState.Idle;
+                }
+
+                //敵の距離が15より小さいとき走って追跡
+                if (DistanceToPlayer() < 15)
+                {
+                    agent.ResetPath();
+                    state = CharacterState.Run;
+                }
+
+                //敵の距離が15より大きいときはプレイヤーを見失う
+                else
+                {
+                    //敵の目的地が設定されていないとき
+                    if (!agent.hasPath)
+                    {
+                        //新たな目的地をランダムで設定
+                        Vector3 nextPos = new Vector3(transform.position.x + Random.Range(-30, 30), transform.position.y, transform.position.z + Random.Range(-30, 30));
+                        agent.SetDestination(nextPos);
+                        agent.speed = walkSpeed;
+                        animationManager.TurnOffTrigger(anim);
+                        animationManager.PlayAnimation(anim,CharacterState.Walk, true);
+                    }
+
+                }
+                break;
+
+            case CharacterState.Run:
+
+                
+                //敵の距離が３より小さいとき
+                if (DistanceToPlayer() < agent.stoppingDistance)
+                {
+                    state = CharacterState.Attack;
+                }
+                else if(DistanceToPlayer() < 15)
+                {
+                    animationManager.TurnOffTrigger(anim);
+                    agent.SetDestination(target.gameObject.transform.position);
+                    animationManager.PlayAnimation(anim,CharacterState.Run, true);
+                    agent.speed = runSpeed;
+                }
+                else
+                {
+                    agent.ResetPath();
+                    state = CharacterState.Walk;
+                }
+                break;
+
+
+            case CharacterState.Attack:
+
+                animationManager.TurnOffTrigger(anim);
+                animationManager.PlayAnimation(anim, CharacterState.Attack, true);
+
+                if (DistanceToPlayer() > agent.stoppingDistance)
+                {
+                    state = CharacterState.Run;
+                }
+
+                    break;
+
+            case CharacterState.Dead:
+
+                Destroy(agent);
+
+                break;
+
         }
     }
 
@@ -36,38 +137,43 @@ public class EnemyController : MonoBehaviour
     public void SetUpEnemy()
     {
         agent = GetComponent<NavMeshAgent>();
+        anim = GetComponent<Animator>();
+        animationManager = GetComponent<AnimationManager>();
+        target = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
     }
 
     /// <summary>
-    /// 敵のHP計算
+    /// 敵を倒す
     /// </summary>
-    /// <param name="amount"></param>
-    public void CalculateEnemyHp(int amount)
+    /// <param name="gameManager"></param>
+    public void DestroyEnemy(GameManager gameManager)
     {
-        enemyHp -= amount;
-        Debug.Log(enemyHp);
+        animationManager.TurnOffTrigger(anim);
+        animationManager.PlayAnimation(anim, CharacterState.Dead, true);
+        state = CharacterState.Dead;
+        gameManager.enemiesList.Remove(this);
+        //gameManager.CheckFinishEvent();
+    }
 
-        if(enemyHp <= 0)
+    /// <summary>
+    /// プレイヤーにダメージを与える
+    /// </summary>
+    public void DamagePlayer()
+    {
+        if(target != null)
         {
-            Destroy(gameObject);
+            target.GetComponent<PlayerController>().TakeHit(attackDamage);
         }
     }
 
-    /// <summary>
-    /// プレイヤー発見
-    /// </summary>
-    /// <param name="player"></param>
-    public void DiscoverPlayer(PlayerController player)
-    {
-        target = player;
-    }
 
     /// <summary>
-    /// プレイヤー見失う
+    /// 敵とプレイヤーの間の距離を計算する
     /// </summary>
-    public void MissPlayer()
+    /// <returns></returns>
+    private float DistanceToPlayer()
     {
-        target = null;
+        return Vector3.Distance(target.gameObject.transform.position, transform.position);
     }
 
 }

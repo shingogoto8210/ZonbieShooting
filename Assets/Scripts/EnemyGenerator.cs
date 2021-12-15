@@ -9,14 +9,19 @@ public class EnemyGenerator : MonoBehaviour
 
     public Transform[] enemyTrans;
 
+    [SerializeField]
+    private GameManager gameManager;
+
     /// <summary>
-    /// 敵の生成
+    /// 敵を生成してエネミーリストに加える
     /// </summary>
     public void GenerateEnemy()
     {
         for (int i = 0; i < enemyTrans.Length; i++)
         {
-             Instantiate(enemyPrefab, enemyTrans[i]).SetUpEnemy();
+            EnemyController enemy = Instantiate(enemyPrefab, enemyTrans[i]);
+            //enemy.SetUpEnemy();
+            gameManager.enemiesList.Add(enemy);
         }
     }
 }

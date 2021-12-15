@@ -4,6 +4,7 @@
 public enum GameState
 {
     Wait,
-    Play,
+    Move,
+    Event,
     GameOver
 }

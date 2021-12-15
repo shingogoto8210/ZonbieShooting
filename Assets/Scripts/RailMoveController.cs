@@ -15,18 +15,33 @@ public class RailMoveController : MonoBehaviour
     [SerializeField, Header("移動時間")]
     private float moveTime;
 
-    private bool isStop;
-
     private GameManager gameManager;
 
+    private PlayerController player;
+
+    public AudioSource playerFootStep;
+
+    public AudioClip walkFootStepSE;
+
+    private bool isStop;
+
+
+    private void Update()
+    {
+        StopAndMove();
+
+        //Debug.Log(isStop);
+
+    }
     /// <summary>
     /// RailMoveControllerの設定
     /// </summary>
     /// <param name="gameManager"></param>
-    public void SetUpRailMoveController(GameManager gameManager,RailPathData railPathData)
+    public void SetUpRailMoveController(GameManager gameManager, RailPathData railPathData, PlayerController player)
     {
         this.gameManager = gameManager;
         this.railPathData = railPathData;
+        this.player = player;
     }
 
     /// <summary>
@@ -36,9 +51,11 @@ public class RailMoveController : MonoBehaviour
     {
         //railPathDataからTransform型の配列を取得し，Vector３型に直して変数に代入
         paths = railPathData.railPathDatas.Select(x => x.transform.position).ToArray();
-
+        isStop = false;
         //Pathデータを順に進んでいき，最後のところで続きあるか確認。なければ終了。
         tween = transform.DOPath(paths, moveTime).SetEase(Ease.Linear).OnWaypointChange((index) => gameManager.CheckEvent(index)).OnComplete(() => gameManager.CheckNextRailPathData());
+        player.MoveAnimation(true);
+        PlayerWalkFootStep();
         Debug.Log("移動開始");
     }
 
@@ -49,6 +66,9 @@ public class RailMoveController : MonoBehaviour
     {
         tween.Pause();
         isStop = true;
+
+        player.MoveAnimation(false);
+        StopFootStep();
         Debug.Log("停止");
     }
 
@@ -59,6 +79,8 @@ public class RailMoveController : MonoBehaviour
     {
         tween.Play();
         isStop = false;
+        player.MoveAnimation(true);
+        PlayerWalkFootStep();
         Debug.Log("移動再開");
     }
 
@@ -67,30 +89,49 @@ public class RailMoveController : MonoBehaviour
     /// </summary>
     public void KillTween()
     {
+        StopFootStep();
         tween.Kill();
     }
 
     /// <summary>
-    /// 移動と停止を変更する
+    /// 足音を鳴らす
     /// </summary>
-    /// <returns></returns>
-    public IEnumerator ChangeMove()
+    public void PlayerWalkFootStep()
     {
-        while (gameManager.currentGameState == GameState.Play)
-        {
-            //移動中にスペースを押すと止まる
-            if (isStop == false && Input.GetKeyDown(KeyCode.Space))
-            {
-                Stop();
-            }
+        playerFootStep.loop = true;
 
-            //停止中にスペースを押すと移動再開
-            else if (isStop && Input.GetKeyDown(KeyCode.Space))
-            {
-                Resume();
-            }
+        playerFootStep.pitch = 1f;
 
-            yield return null;
-        }
+        playerFootStep.clip = walkFootStepSE;
+
+        playerFootStep.Play();
+
     }
+
+    /// <summary>
+    /// 足音を止める
+    /// </summary>
+    public void StopFootStep()
+    {
+        playerFootStep.Stop();
+
+        playerFootStep.loop = false;
+    }
+
+    private void StopAndMove()
+    {
+        if (Input.GetKeyDown(KeyCode.Space) && isStop == false)
+        {
+            Stop();
+
+        }
+        else if (Input.GetKeyDown(KeyCode.Space) && isStop == true)
+        {
+            Resume();
+
+        }
+
+
+    }
+
 }

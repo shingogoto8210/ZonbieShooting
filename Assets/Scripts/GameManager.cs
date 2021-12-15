@@ -19,7 +19,9 @@ public class GameManager : MonoBehaviour
     private PlayerController playerController;
 
     [SerializeField]
-    private RayController rayController;
+    private Weapon weapon;
+
+    public List<EnemyController> enemiesList;
 
     void Start()
     {
@@ -28,32 +30,20 @@ public class GameManager : MonoBehaviour
         Debug.Log("準備中");
 
         //RailMoveControllerの設定
-        railMoveController.SetUpRailMoveController(this, railPathData);
+        railMoveController.SetUpRailMoveController(this, railPathData,playerController);
 
-        //プレイヤーの設定
-        playerController.SetUpPlayer();
+        playerController.SetUpPlayerController();
 
-        //RayControllerの設定
-        rayController.SetUpRayController(playerController);
+        weapon.SetUpWeapon(this);
 
         //ゲームの状態（プレイ中）
-        currentGameState = GameState.Play;
+        currentGameState = GameState.Move;
         Debug.Log("ゲーム開始");
 
         //移動開始
         railMoveController.Move();
 
-        //プレイ中は移動と停止の操作可能
-        StartCoroutine(railMoveController.ChangeMove());
-    }
 
-    private void Update()
-    {
-        if (playerController.BulletCount > 0 && Input.GetMouseButton(0))
-        {
-            //発車時間の計測
-            StartCoroutine(rayController.ShootTimer());
-        }
     }
 
     /// <summary>
@@ -61,13 +51,15 @@ public class GameManager : MonoBehaviour
     /// </summary>
     public void CheckNextRailPathData()
     {
-        //TODO 次のRailPathDataがあれば，そちらに進む
 
         //次のRailPathDataがなければゲーム終了
         currentGameState = GameState.GameOver;
 
         //tweenをKill
         railMoveController.KillTween();
+
+        //プレイヤーの動きを止める
+        playerController.MoveAnimation(false);
 
         Debug.Log("ゲーム終了");
 
@@ -83,12 +75,27 @@ public class GameManager : MonoBehaviour
 
         if (index >= 1 && railPathData.railPathDatas[index - 1].isEvent)
         {
+
+            currentGameState = GameState.Event;
+
             Debug.Log("イベント発生");
 
             enemyGenerator.GenerateEnemy();
 
             railMoveController.Stop();
-            
+
+        }
+    }
+
+    /// <summary>
+    /// すべての敵が倒れたか確認
+    /// </summary>
+    public void CheckFinishEvent()
+    {
+        if (enemiesList.Count <= 0)
+        {
+            currentGameState = GameState.Move;
+            railMoveController.Resume();
         }
     }
 }
