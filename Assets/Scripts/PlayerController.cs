@@ -72,14 +72,15 @@ public class PlayerController : MonoBehaviour
         //カーソルの表示切替
         UpdateCursorLock();
 
-        //イベント中に左クリックすると銃を撃てる
+        //左クリックすると銃を撃てる
         if (Input.GetMouseButton(0) && Weapon.instance.canShoot)
         {
             if (ammoClip > 0)
             {
 
-                animationManager.PlayAnimation(anim, CharacterState.Walk,false);
+                //animationManager.PlayAnimation(anim, CharacterState.Walk,false);
                 animationManager.PlayAnimation(anim, CharacterState.Fire);
+
                 Weapon.instance.canShoot = false;
 
                 //マガジン内の弾を減らす
@@ -109,7 +110,7 @@ public class PlayerController : MonoBehaviour
 
             if (amountNeed != 0 && ammunition != 0)
             {
-                animationManager.PlayAnimation(anim, CharacterState.Walk, false);
+                //animationManager.PlayAnimation(anim, CharacterState.Walk, false);
                 animationManager.PlayAnimation(anim, CharacterState.Reload);
                 ammunition -= ammoAvailable;
                 ammoClip += ammoAvailable;

@@ -34,7 +34,7 @@ public class GameManager : MonoBehaviour
 
         playerController.SetUpPlayerController();
 
-        weapon.SetUpWeapon(this);
+        weapon.SetUpWeapon(this,playerController);
 
         //ゲームの状態（プレイ中）
         currentGameState = GameState.Move;

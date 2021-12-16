@@ -6,9 +6,6 @@ using UnityEngine.AI;
 public class EnemyController : MonoBehaviour
 {
     
-    [SerializeField]
-    private int enemyHp, attackPower;
-
     private NavMeshAgent agent;
 
     private PlayerController target;
@@ -23,13 +20,17 @@ public class EnemyController : MonoBehaviour
 
     public int attackDamage;
 
+    private CapsuleCollider enemyCol;
+
     private void Start()
     {
-        agent = GetComponent<NavMeshAgent>();
-        anim = GetComponent<Animator>();
-        animationManager = GetComponent<AnimationManager>();
-        target = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
+        if (!TryGetComponent(out enemyCol)) Debug.Log("collider–¢æ“¾");
+        if (!TryGetComponent(out agent)) Debug.Log("NavMeshAgent–¢æ“¾");
+        if (!TryGetComponent(out anim)) Debug.Log("Animator–¢æ“¾");
+        if (!TryGetComponent(out animationManager)) Debug.Log("AnimationManager–¢æ“¾");
+        if (!GameObject.FindGameObjectWithTag("Player").TryGetComponent(out target)) Debug.Log("AnimationManager–¢æ“¾");
     }
+
     private void Update()
     {
         switch (state)
@@ -48,7 +49,7 @@ public class EnemyController : MonoBehaviour
                 }
 
                 //“G‚Ì‹——£‚ª15‚æ‚è¬‚³‚¢‚Æ‚«‘–‚Á‚Ä’ÇÕ
-                if (DistanceToPlayer() < 15)
+                if (DistanceToPlayer() < 30)
                 {
                     state = CharacterState.Run;
                 }
@@ -64,7 +65,7 @@ public class EnemyController : MonoBehaviour
                 }
 
                 //“G‚Ì‹——£‚ª15‚æ‚è¬‚³‚¢‚Æ‚«‘–‚Á‚Ä’ÇÕ
-                if (DistanceToPlayer() < 15)
+                if (DistanceToPlayer() < 30)
                 {
                     agent.ResetPath();
                     state = CharacterState.Run;
@@ -95,7 +96,7 @@ public class EnemyController : MonoBehaviour
                 {
                     state = CharacterState.Attack;
                 }
-                else if(DistanceToPlayer() < 15)
+                else if(DistanceToPlayer() < 30)
                 {
                     animationManager.TurnOffTrigger(anim);
                     agent.SetDestination(target.gameObject.transform.position);
@@ -115,7 +116,7 @@ public class EnemyController : MonoBehaviour
                 animationManager.TurnOffTrigger(anim);
                 animationManager.PlayAnimation(anim, CharacterState.Attack, true);
 
-                if (DistanceToPlayer() > agent.stoppingDistance)
+                if (DistanceToPlayer() >= agent.stoppingDistance)
                 {
                     state = CharacterState.Run;
                 }
@@ -140,6 +141,8 @@ public class EnemyController : MonoBehaviour
         anim = GetComponent<Animator>();
         animationManager = GetComponent<AnimationManager>();
         target = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
+        enemyCol = GetComponent<CapsuleCollider>();
+
     }
 
     /// <summary>
@@ -148,6 +151,7 @@ public class EnemyController : MonoBehaviour
     /// <param name="gameManager"></param>
     public void DestroyEnemy(GameManager gameManager)
     {
+        enemyCol.enabled = false;
         animationManager.TurnOffTrigger(anim);
         animationManager.PlayAnimation(anim, CharacterState.Dead, true);
         state = CharacterState.Dead;

@@ -17,6 +17,8 @@ public class Weapon : MonoBehaviour
 
     private GameManager gameManager;
 
+    private PlayerController playerController;
+
     private void Awake()
     {
         if (instance == null)
@@ -29,9 +31,15 @@ public class Weapon : MonoBehaviour
         }
     }
 
-    public void SetUpWeapon(GameManager gameManager)
+    private void Update()
+    {
+        Debug.DrawRay(shotDirection.position, shotDirection.forward * 300, Color.green);
+    }
+
+    public void SetUpWeapon(GameManager gameManager,PlayerController playerController)
     {
         this.gameManager = gameManager;
+        this.playerController = playerController;
     }
     /// <summary>
     /// åÇÇƒÇÈèÛë‘Ç…Ç∑ÇÈ
@@ -76,15 +84,25 @@ public class Weapon : MonoBehaviour
     /// </summary>
     public void Shooting()
     {
+        Debug.Log("Shooting");
         RaycastHit hitInfo;
 
         if (Physics.Raycast(shotDirection.transform.position, shotDirection.transform.forward, out hitInfo, 300))
         {
-            if (hitInfo.collider.gameObject.GetComponent<EnemyController>())
+            if (hitInfo.collider.gameObject.TryGetComponent(out EnemyController enemy))
             {
-                EnemyController enemy = hitInfo.collider.gameObject.GetComponent<EnemyController>();
                 enemy.DestroyEnemy(gameManager);
+                Debug.Log("éÀåÇ");
+            }
+            else if(hitInfo.collider.gameObject != null)
+            {
+                Debug.Log(hitInfo.collider.gameObject.name);
+            }
+            else
+            {
+                Debug.Log("éÊìæÇ»Çµ");
             }
         }
     }
+
 }
