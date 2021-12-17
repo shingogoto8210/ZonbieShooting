@@ -5,7 +5,7 @@ using UnityEngine.AI;
 
 public class EnemyController : MonoBehaviour
 {
-    
+
     private NavMeshAgent agent;
 
     private PlayerController target;
@@ -22,6 +22,8 @@ public class EnemyController : MonoBehaviour
 
     private CapsuleCollider enemyCol;
 
+    private GameManager gameManager;
+
     private void Start()
     {
         if (!TryGetComponent(out enemyCol)) Debug.Log("collider–¢æ“¾");
@@ -29,6 +31,7 @@ public class EnemyController : MonoBehaviour
         if (!TryGetComponent(out anim)) Debug.Log("Animator–¢æ“¾");
         if (!TryGetComponent(out animationManager)) Debug.Log("AnimationManager–¢æ“¾");
         if (!GameObject.FindGameObjectWithTag("Player").TryGetComponent(out target)) Debug.Log("AnimationManager–¢æ“¾");
+        gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
     }
 
     private void Update()
@@ -43,7 +46,7 @@ public class EnemyController : MonoBehaviour
                 agent.ResetPath();
 
                 //Šm—¦‚Åó‘Ô‚ğWALK‚É•ÏX
-                if (Random.Range(0,5000) < 5)
+                if (Random.Range(0, 5000) < 5)
                 {
                     state = CharacterState.Walk;
                 }
@@ -82,7 +85,7 @@ public class EnemyController : MonoBehaviour
                         agent.SetDestination(nextPos);
                         agent.speed = walkSpeed;
                         animationManager.TurnOffTrigger(anim);
-                        animationManager.PlayAnimation(anim,CharacterState.Walk, true);
+                        animationManager.PlayAnimation(anim, CharacterState.Walk, true);
                     }
 
                 }
@@ -90,17 +93,17 @@ public class EnemyController : MonoBehaviour
 
             case CharacterState.Run:
 
-                
+
                 //“G‚Ì‹——£‚ª‚R‚æ‚è¬‚³‚¢‚Æ‚«
                 if (DistanceToPlayer() < agent.stoppingDistance)
                 {
                     state = CharacterState.Attack;
                 }
-                else if(DistanceToPlayer() < 30)
+                else if (DistanceToPlayer() < 30)
                 {
                     animationManager.TurnOffTrigger(anim);
                     agent.SetDestination(target.gameObject.transform.position);
-                    animationManager.PlayAnimation(anim,CharacterState.Run, true);
+                    animationManager.PlayAnimation(anim, CharacterState.Run, true);
                     agent.speed = runSpeed;
                 }
                 else
@@ -121,7 +124,7 @@ public class EnemyController : MonoBehaviour
                     state = CharacterState.Run;
                 }
 
-                    break;
+                break;
 
             case CharacterState.Dead:
 
@@ -155,8 +158,11 @@ public class EnemyController : MonoBehaviour
         animationManager.TurnOffTrigger(anim);
         animationManager.PlayAnimation(anim, CharacterState.Dead, true);
         state = CharacterState.Dead;
-        gameManager.enemiesList.Remove(this);
-        //gameManager.CheckFinishEvent();
+        if (gameManager.currentGameState == GameState.Event)
+        {
+            gameManager.enemiesList.Remove(this);
+            gameManager.CheckFinishEvent();
+        }
     }
 
     /// <summary>
@@ -164,7 +170,7 @@ public class EnemyController : MonoBehaviour
     /// </summary>
     public void DamagePlayer()
     {
-        if(target != null)
+        if (target != null)
         {
             target.GetComponent<PlayerController>().TakeHit(attackDamage);
         }

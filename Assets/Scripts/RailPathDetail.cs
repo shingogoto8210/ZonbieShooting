@@ -6,4 +6,5 @@ public class RailPathDetail : MonoBehaviour
 {
     public bool isEvent;
 
+
 }

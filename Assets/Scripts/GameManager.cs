@@ -12,8 +12,7 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     private RailPathData railPathData;
 
-    [SerializeField]
-    private EnemyGenerator enemyGenerator;
+    public EnemyGenerator[] enemyGenerators;
 
     [SerializeField]
     private PlayerController playerController;
@@ -22,6 +21,8 @@ public class GameManager : MonoBehaviour
     private Weapon weapon;
 
     public List<EnemyController> enemiesList;
+
+    private int eventNo = 0;
 
     void Start()
     {
@@ -80,9 +81,11 @@ public class GameManager : MonoBehaviour
 
             Debug.Log("イベント発生");
 
-            enemyGenerator.GenerateEnemy();
+            StartCoroutine(enemyGenerators[eventNo].GenerateEnemy());
 
             railMoveController.Stop();
+
+            
 
         }
     }
@@ -92,10 +95,12 @@ public class GameManager : MonoBehaviour
     /// </summary>
     public void CheckFinishEvent()
     {
-        if (enemiesList.Count <= 0)
+        if (enemiesList.Count <= 0 && enemyGenerators[eventNo].isFinish == true)
         {
             currentGameState = GameState.Move;
             railMoveController.Resume();
+            eventNo++;
+            Debug.Log("イベント終了");
         }
     }
 }
