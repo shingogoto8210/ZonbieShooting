@@ -10,19 +10,21 @@ public class EnemyController : MonoBehaviour
 
     private PlayerController target;
 
-    private CharacterState state = CharacterState.Idle;
+    private CapsuleCollider enemyCol;
 
     private Animator anim;
 
-    private float walkSpeed = 1.0f, runSpeed = 3.0f;
-
     private AnimationManager animationManager;
 
-    public int attackDamage;
-
-    private CapsuleCollider enemyCol;
-
     private GameManager gameManager;
+
+    private RailMoveController railMoveController;
+
+    private CharacterState state = CharacterState.Idle;
+
+    private float walkSpeed = 1.0f, runSpeed = 3.0f;
+
+    public int attackDamage;
 
     private void Start()
     {
@@ -31,6 +33,7 @@ public class EnemyController : MonoBehaviour
         if (!TryGetComponent(out anim)) Debug.Log("Animator–¢æ“¾");
         if (!TryGetComponent(out animationManager)) Debug.Log("AnimationManager–¢æ“¾");
         if (!GameObject.FindGameObjectWithTag("Player").TryGetComponent(out target)) Debug.Log("AnimationManager–¢æ“¾");
+        railMoveController = target.transform.gameObject.GetComponent<RailMoveController>();
         gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
     }
 
@@ -97,6 +100,13 @@ public class EnemyController : MonoBehaviour
                 //“G‚Ì‹——£‚ª‚R‚æ‚è¬‚³‚¢‚Æ‚«
                 if (DistanceToPlayer() < agent.stoppingDistance)
                 {
+                    Debug.Log("“G‚É•ß‚Ü‚Á‚½");
+
+                    //ƒvƒŒƒCƒ„[‚ª“®‚¢‚Ä‚¢‚é‚Æ‚«
+                    if (railMoveController.isStop == false)
+                    {
+                        railMoveController.Stop();
+                    }
                     state = CharacterState.Attack;
                 }
                 else if (DistanceToPlayer() < 30)
@@ -128,6 +138,8 @@ public class EnemyController : MonoBehaviour
 
             case CharacterState.Dead:
 
+                
+
                 Destroy(agent);
 
                 break;
@@ -138,15 +150,14 @@ public class EnemyController : MonoBehaviour
     /// <summary>
     /// “G‚Ìİ’è
     /// </summary>
-    public void SetUpEnemy()
-    {
-        agent = GetComponent<NavMeshAgent>();
-        anim = GetComponent<Animator>();
-        animationManager = GetComponent<AnimationManager>();
-        target = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
-        enemyCol = GetComponent<CapsuleCollider>();
-
-    }
+    //public void SetUpEnemy()
+    //{
+    //    agent = GetComponent<NavMeshAgent>();
+    //    anim = GetComponent<Animator>();
+    //    animationManager = GetComponent<AnimationManager>();
+    //    target = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
+    //    enemyCol = GetComponent<CapsuleCollider>();
+    //}
 
     /// <summary>
     /// “G‚ğ“|‚·
@@ -158,6 +169,14 @@ public class EnemyController : MonoBehaviour
         animationManager.TurnOffTrigger(anim);
         animationManager.PlayAnimation(anim, CharacterState.Dead, true);
         state = CharacterState.Dead;
+
+        //ƒCƒxƒ“ƒg‚Å‚Í‚È‚­AƒvƒŒƒCƒ„[‚ª~‚Ü‚Á‚Ä‚¢‚é‚Æ‚«i“G‚É•ß‚Ü‚Á‚Ä‚¢‚é‚Æ‚«j
+        if (railMoveController.isStop == true && gameManager.currentGameState == GameState.Move)
+        {
+            //“G‚ğ“|‚µ‚½‚ç‚Ü‚½“®‚¯‚é
+            railMoveController.Resume();
+        }
+
         if (gameManager.currentGameState == GameState.Event)
         {
             gameManager.enemiesList.Remove(this);
@@ -175,7 +194,6 @@ public class EnemyController : MonoBehaviour
             target.GetComponent<PlayerController>().TakeHit(attackDamage);
         }
     }
-
 
     /// <summary>
     /// “G‚ÆƒvƒŒƒCƒ„[‚ÌŠÔ‚Ì‹——£‚ğŒvZ‚·‚é

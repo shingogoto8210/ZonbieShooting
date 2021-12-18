@@ -8,8 +8,10 @@ public class RailMoveController : MonoBehaviour
 {
     private Tween tween;
 
+    //目的地を配列で管理しているクラス
     private RailPathData railPathData;
 
+    //RailPathDataの情報をVector3型にして管理するための変数
     private Vector3[] paths;
 
     [SerializeField, Header("移動時間")]
@@ -19,20 +21,16 @@ public class RailMoveController : MonoBehaviour
 
     private PlayerController player;
 
-    public AudioSource playerFootStep;
-
-    public AudioClip walkFootStepSE;
-
-    private bool isStop;
+    public bool isStop;
 
 
     private void Update()
     {
-        StopAndMove();
-
+        ///StopAndMove();
         //Debug.Log(isStop);
 
     }
+
     /// <summary>
     /// RailMoveControllerの設定
     /// </summary>
@@ -51,11 +49,15 @@ public class RailMoveController : MonoBehaviour
     {
         //railPathDataからTransform型の配列を取得し，Vector３型に直して変数に代入
         paths = railPathData.railPathDatas.Select(x => x.transform.position).ToArray();
+
         isStop = false;
+
         //Pathデータを順に進んでいき，最後のところで続きあるか確認。なければ終了。
-        tween = transform.DOPath(paths, moveTime).SetEase(Ease.Linear).OnWaypointChange((index) => gameManager.CheckEvent(index)).OnComplete(() => gameManager.CheckNextRailPathData());
-        player.MoveAnimation(true);
-        PlayerWalkFootStep();
+        tween = transform.DOPath(paths, moveTime).SetEase(Ease.Linear).OnWaypointChange((index) => gameManager.CheckEvent(index)).OnComplete(() => gameManager.GameOver());
+        
+        //player.MoveAnimation(true);
+
+        player.PlayerWalkFootStep();
         Debug.Log("移動開始");
     }
 
@@ -66,9 +68,8 @@ public class RailMoveController : MonoBehaviour
     {
         tween.Pause();
         isStop = true;
-
-        player.MoveAnimation(false);
-        StopFootStep();
+        //player.MoveAnimation(false);
+        player.StopFootStep();
         Debug.Log("停止");
     }
 
@@ -79,8 +80,8 @@ public class RailMoveController : MonoBehaviour
     {
         tween.Play();
         isStop = false;
-        player.MoveAnimation(true);
-        PlayerWalkFootStep();
+        //player.MoveAnimation(true);
+        player.PlayerWalkFootStep();
         Debug.Log("移動再開");
     }
 
@@ -89,49 +90,22 @@ public class RailMoveController : MonoBehaviour
     /// </summary>
     public void KillTween()
     {
-        StopFootStep();
+        player.StopFootStep();
         tween.Kill();
     }
 
-    /// <summary>
-    /// 足音を鳴らす
-    /// </summary>
-    public void PlayerWalkFootStep()
-    {
-        playerFootStep.loop = true;
+    
 
-        playerFootStep.pitch = 1f;
-
-        playerFootStep.clip = walkFootStepSE;
-
-        playerFootStep.Play();
-
-    }
-
-    /// <summary>
-    /// 足音を止める
-    /// </summary>
-    public void StopFootStep()
-    {
-        playerFootStep.Stop();
-
-        playerFootStep.loop = false;
-    }
-
-    private void StopAndMove()
-    {
-        if (Input.GetKeyDown(KeyCode.Space) && isStop == false)
-        {
-            Stop();
-
-        }
-        else if (Input.GetKeyDown(KeyCode.Space) && isStop == true)
-        {
-            Resume();
-
-        }
-
-
-    }
+    //private void StopAndMove()
+    //{
+    //    if (Input.GetKeyDown(KeyCode.Space) && isStop == false)
+    //    {
+    //        Stop();
+    //    }
+    //    else if (Input.GetKeyDown(KeyCode.Space) && isStop == true)
+    //    {
+    //        Resume();
+    //    }
+    //}
 
 }

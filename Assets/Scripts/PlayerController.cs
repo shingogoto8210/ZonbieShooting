@@ -5,9 +5,6 @@ using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
-    [SerializeField]
-    private GameObject cam;
-
     private Quaternion cameraRot, characterRot;
 
     float Xsensitivity = 3f, Ysensitivity = 3f;
@@ -19,42 +16,29 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     private GameManager gameManager;
 
-
     [SerializeField]
     private Animator anim;
 
     private AnimationManager animationManager;
 
-    int ammunition = 50, ammoClip = 10, maxAmmoClip = 10;
+    public int ammunition = 50, ammoClip = 10, maxAmmoClip = 10;
 
-    int playerHP = 100, maxPlayerHP = 100;
-
-    public Text textAmmo;
-
-    public Slider hpBar;
+    public int playerHP = 100, maxPlayerHP = 100;
 
     public GameObject mainCamera, subCamera;
 
+    private Camera camCom;
 
+    public AudioSource playerFootStep;
 
-    private void Start()
-    {
-        //カメラとキャラクターの角度を取得
-        cameraRot = cam.transform.localRotation;
-        characterRot = transform.localRotation;
+    public AudioClip walkFootStepSE;
 
-        //銃を撃てる状態にする
-        Weapon.instance.canShoot = true;
+    public bool isReloading;
 
-        //UIの初期設定設定
-        hpBar.value = playerHP;
-        textAmmo.text = ammoClip + "/" + ammunition;
-    }
-
+    private UIManager uiManager;
 
     private void Update()
     {
-
 
         //マウスを動かして視点切りかえ
         float xRot = Input.GetAxis("Mouse X") * Ysensitivity;
@@ -65,9 +49,8 @@ public class PlayerController : MonoBehaviour
 
         cameraRot = ClampRotation(cameraRot);
 
-        cam.transform.localRotation = cameraRot;
+        mainCamera.transform.localRotation = cameraRot;
         transform.localRotation = characterRot;
-
 
         //カーソルの表示切替
         UpdateCursorLock();
@@ -75,9 +58,9 @@ public class PlayerController : MonoBehaviour
         //左クリックすると銃を撃てる
         if (Input.GetMouseButton(0) && Weapon.instance.canShoot)
         {
+            //マガジン内に弾が入っているとき
             if (ammoClip > 0)
             {
-
                 //animationManager.PlayAnimation(anim, CharacterState.Walk,false);
                 animationManager.PlayAnimation(anim, CharacterState.Fire);
 
@@ -85,9 +68,9 @@ public class PlayerController : MonoBehaviour
 
                 //マガジン内の弾を減らす
                 ammoClip--;
-                //UI更新
-                textAmmo.text = ammoClip + "/" + ammunition;
 
+                //UI更新
+                uiManager.UpdateDisplayAmmunition();
             }
             else
             {
@@ -101,7 +84,7 @@ public class PlayerController : MonoBehaviour
         //イベント中にRボタンを押すとリロード
         if (Input.GetKeyDown(KeyCode.R))
         {
-            
+
             //マガジン内に弾が追加で何発入るか計算
             int amountNeed = maxAmmoClip - ammoClip;
 
@@ -110,25 +93,24 @@ public class PlayerController : MonoBehaviour
 
             if (amountNeed != 0 && ammunition != 0)
             {
-                //animationManager.PlayAnimation(anim, CharacterState.Walk, false);
+                isReloading = true;
                 animationManager.PlayAnimation(anim, CharacterState.Reload);
                 ammunition -= ammoAvailable;
                 ammoClip += ammoAvailable;
-                textAmmo.text = ammoClip + "/" + ammunition;
-
+                uiManager.UpdateDisplayAmmunition();
             }
         }
 
         //右クリックしている間，覗き込み
-        if (Input.GetMouseButton(1))
+        if (Input.GetMouseButton(1) && isReloading == false)
         {
             subCamera.SetActive(true);
-            mainCamera.GetComponent<Camera>().enabled = false;
+            camCom.enabled = false;
         }
         else if (subCamera.activeSelf)
         {
             subCamera.SetActive(false);
-            mainCamera.GetComponent<Camera>().enabled = true;
+            camCom.enabled = true;
         }
 
 
@@ -137,10 +119,22 @@ public class PlayerController : MonoBehaviour
     /// <summary>
     /// プレイヤーの初期設定
     /// </summary>
-    public void SetUpPlayerController()
+    public void SetUpPlayerController(UIManager uiManager)
     {
         animationManager = GetComponent<AnimationManager>();
+        camCom = mainCamera.GetComponent<Camera>();
+        this.uiManager = uiManager;
 
+        //カメラとキャラクターの角度を取得
+        cameraRot = mainCamera.transform.localRotation;
+        characterRot = transform.localRotation;
+
+        //銃を撃てる状態にする
+        Weapon.instance.canShoot = true;
+
+        //UIの初期設定設定
+        uiManager.UpdateDisplayHP();
+        uiManager.UpdateDisplayAmmunition();
     }
 
 
@@ -190,8 +184,6 @@ public class PlayerController : MonoBehaviour
 
     }
 
-
-
     /// <summary>
     /// プレイヤーのアニメーションの管理
     /// </summary>
@@ -199,6 +191,31 @@ public class PlayerController : MonoBehaviour
     public void MoveAnimation(bool isMove)
     {
         animationManager.PlayAnimation(anim, CharacterState.Walk, isMove);
+    }
+
+    /// <summary>
+    /// 足音を鳴らす
+    /// </summary>
+    public void PlayerWalkFootStep()
+    {
+        playerFootStep.loop = true;
+
+        playerFootStep.pitch = 1f;
+
+        playerFootStep.clip = walkFootStepSE;
+
+        playerFootStep.Play();
+
+    }
+
+    /// <summary>
+    /// 足音を止める
+    /// </summary>
+    public void StopFootStep()
+    {
+        playerFootStep.Stop();
+
+        playerFootStep.loop = false;
     }
 
     /// <summary>
@@ -210,7 +227,7 @@ public class PlayerController : MonoBehaviour
     {
         playerHP = (int)Mathf.Clamp(playerHP - damage, 0, maxPlayerHP);
 
-        hpBar.value = playerHP;
+        uiManager.UpdateDisplayHP();
 
         if (playerHP < 0 && gameManager.currentGameState != GameState.GameOver)
         {

@@ -30,7 +30,6 @@ public class AnimationManager : MonoBehaviour
                 anim.SetBool(state.ToString(), isSwitch);
 
                 break;
-
         }
     }
 
@@ -43,8 +42,4 @@ public class AnimationManager : MonoBehaviour
         anim.SetBool(CharacterState.Attack.ToString(), false);
         anim.SetBool(CharacterState.Run.ToString(), false);
     }
-
-
-
-
 }

@@ -24,7 +24,6 @@ public class EnemyGenerator : MonoBehaviour
 
     /// <summary>
     /// イベント地点についたら発動
-    /// 10体倒すまで敵が生成される
     /// </summary>
     public IEnumerator GenerateEnemy()
     {
@@ -32,7 +31,7 @@ public class EnemyGenerator : MonoBehaviour
         {
             isFinish = false;
 
-            //  ランダムで敵の発生地点を決める
+            // ランダムで敵の発生地点を決める
             int randomTran = Random.Range(0, enemyTrans.Length);
             EnemyController enemy = Instantiate(enemyPrefab, enemyTrans[randomTran]);
             enemyCount++;

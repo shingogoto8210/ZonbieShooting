@@ -7,12 +7,14 @@ public class Weapon : MonoBehaviour
 
     public AudioSource weapon;
 
-    public  bool canShoot;
-
     public AudioClip reloadSE, triggerSE, fireSE;
+
+    //連射制限のための変数
+    public  bool canShoot;
 
     public static Weapon instance;
 
+    //銃口
     public Transform shotDirection;
 
     private GameManager gameManager;
@@ -33,14 +35,16 @@ public class Weapon : MonoBehaviour
 
     private void Update()
     {
-        Debug.DrawRay(shotDirection.position, shotDirection.forward * 300, Color.green);
+        //Debug.DrawRay(shotDirection.position, shotDirection.forward * 300, Color.green);
     }
 
+    //gameManagerとplayerControllerを取得
     public void SetUpWeapon(GameManager gameManager,PlayerController playerController)
     {
         this.gameManager = gameManager;
         this.playerController = playerController;
     }
+
     /// <summary>
     /// 撃てる状態にする
     /// </summary>
@@ -84,25 +88,35 @@ public class Weapon : MonoBehaviour
     /// </summary>
     public void Shooting()
     {
-        Debug.Log("Shooting");
+        //Debug.Log("Shooting");
+
+        //Rayが当たったオブジェクトの情報を入れる
         RaycastHit hitInfo;
 
+        //Rayを飛ばしてオブジェクトに当たったら
         if (Physics.Raycast(shotDirection.transform.position, shotDirection.transform.forward, out hitInfo, 300))
         {
+            //オブジェクトがEnemyControllerを持っていたら
             if (hitInfo.collider.gameObject.TryGetComponent(out EnemyController enemy))
             {
                 enemy.DestroyEnemy(gameManager);
-                Debug.Log("射撃");
+                //Debug.Log("射撃");
             }
-            else if(hitInfo.collider.gameObject != null)
-            {
-                Debug.Log(hitInfo.collider.gameObject.name);
-            }
-            else
-            {
-                Debug.Log("取得なし");
-            }
+            //else if(hitInfo.collider.gameObject != null)
+            //{
+            //    Debug.Log(hitInfo.collider.gameObject.name);
+            //}
+            //else
+            //{
+            //    Debug.Log("取得なし");
+            //}
         }
+    }
+
+    //Reloadのアニメーションが終わったか確認
+    public void FinishReloading()
+    {
+        playerController.isReloading = false;
     }
 
 }
