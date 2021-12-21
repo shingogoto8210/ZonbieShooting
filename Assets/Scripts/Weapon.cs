@@ -96,20 +96,26 @@ public class Weapon : MonoBehaviour
         //Rayを飛ばしてオブジェクトに当たったら
         if (Physics.Raycast(shotDirection.transform.position, shotDirection.transform.forward, out hitInfo, 300))
         {
-            //オブジェクトがEnemyControllerを持っていたら
-            if (hitInfo.collider.gameObject.TryGetComponent(out EnemyController enemy))
+            if(hitInfo.collider.gameObject.TryGetComponent(out PartsTypeDetail partsTypeDetail))
             {
-                StartCoroutine(enemy.DestroyEnemy(gameManager));
-                //Debug.Log("射撃");
+
+                if(partsTypeDetail.partsType == PartsType.head)
+                {
+                    CapsuleCollider enemyCol = partsTypeDetail.GetComponent<CapsuleCollider>();
+                    enemyCol.enabled = false;
+                    EnemyController enemy = partsTypeDetail.transform.root.gameObject.GetComponent<EnemyController>();
+                    StartCoroutine(enemy.DestroyEnemy(gameManager,enemy.point * 5));
+                    Debug.Log("head射撃");
+
+                }
+                else if (partsTypeDetail.partsType == PartsType.body)
+                {
+                    EnemyController enemyController = partsTypeDetail.transform.gameObject.GetComponent<EnemyController>();
+                    StartCoroutine(enemyController.DestroyEnemy(gameManager,enemyController.point));
+                    Debug.Log("body射撃");
+
+                }
             }
-            //else if(hitInfo.collider.gameObject != null)
-            //{
-            //    Debug.Log(hitInfo.collider.gameObject.name);
-            //}
-            //else
-            //{
-            //    Debug.Log("取得なし");
-            //}
         }
     }
 

@@ -29,9 +29,13 @@ public class PlayerController : MonoBehaviour
 
     private Camera camCom;
 
-    public AudioSource playerFootStep;
+    public AudioSource audioSource;
+
+    //public AudioSource playerGetHit;
 
     public AudioClip walkFootStepSE;
+
+    public AudioClip getHitSE;
 
     public bool isReloading;
 
@@ -56,7 +60,7 @@ public class PlayerController : MonoBehaviour
         UpdateCursorLock();
 
         //左クリックすると銃を撃てる
-        if (Input.GetMouseButton(0) && Weapon.instance.canShoot)
+        if (Input.GetMouseButton(0) && Weapon.instance.canShoot && gameManager.currentGameState != GameState.GameOver)
         {
             //マガジン内に弾が入っているとき
             if (ammoClip > 0)
@@ -82,7 +86,7 @@ public class PlayerController : MonoBehaviour
         }
 
         //イベント中にRボタンを押すとリロード
-        if (Input.GetKeyDown(KeyCode.R))
+        if (Input.GetKeyDown(KeyCode.R) && gameManager.currentGameState != GameState.GameOver)
         {
 
             //マガジン内に弾が追加で何発入るか計算
@@ -102,7 +106,7 @@ public class PlayerController : MonoBehaviour
         }
 
         //右クリックしている間，覗き込み
-        if (Input.GetMouseButton(1) && isReloading == false)
+        if (Input.GetMouseButton(1) && isReloading == false && gameManager.currentGameState != GameState.GameOver)
         {
             subCamera.SetActive(true);
             camCom.enabled = false;
@@ -198,13 +202,13 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     public void PlayerWalkFootStep()
     {
-        playerFootStep.loop = true;
+        audioSource.loop = true;
 
-        playerFootStep.pitch = 1f;
+        audioSource.pitch = 1f;
 
-        playerFootStep.clip = walkFootStepSE;
+        audioSource.clip = walkFootStepSE;
 
-        playerFootStep.Play();
+        audioSource.Play();
 
     }
 
@@ -213,9 +217,14 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     public void StopFootStep()
     {
-        playerFootStep.Stop();
+        audioSource.Stop();
 
-        playerFootStep.loop = false;
+        audioSource.loop = false;
+    }
+
+    public void GetHitSE()
+    {
+        audioSource.PlayOneShot(getHitSE);
     }
 
     /// <summary>
@@ -225,11 +234,13 @@ public class PlayerController : MonoBehaviour
 
     public void TakeHit(float damage)
     {
+        GetHitSE();
+
         playerHP = (int)Mathf.Clamp(playerHP - damage, 0, maxPlayerHP);
 
         uiManager.UpdateDisplayHP();
 
-        if (playerHP < 0 && gameManager.currentGameState != GameState.GameOver)
+        if (playerHP <= 0 && gameManager.currentGameState != GameState.GameOver)
         {
             gameManager.GameOver();
         }

@@ -849,6 +849,7 @@ GameObject:
   - component: {fileID: 9052797844864516621}
   - component: {fileID: 7709322265226917977}
   - component: {fileID: 8663885937010874417}
+  - component: {fileID: 1417664651244291489}
   m_Layer: 0
   m_Name: Zombie0
   m_TagString: Untagged
@@ -864,7 +865,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2238134855452268725}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0.155, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 6754076125491926303}
@@ -907,7 +908,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   audioSource: {fileID: 8663885937010874417}
-  clip: {fileID: 8300000, guid: 97879573597854848949eb984489c7f8, type: 3}
+  voiceSE: {fileID: 8300000, guid: 97879573597854848949eb984489c7f8, type: 3}
+  attackSE: {fileID: 8300000, guid: e6a31d13778bcb341840cfcaa0360384, type: 3}
+  runSE: {fileID: 8300000, guid: 79116af06c1afce4681376559fc74060, type: 3}
   attackDamage: 10
   point: 100
 --- !u!195 &7550230591297299366
@@ -955,9 +958,9 @@ CapsuleCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   m_Radius: 0.5
-  m_Height: 2
+  m_Height: 1.7
   m_Direction: 1
-  m_Center: {x: 0, y: 1, z: 0}
+  m_Center: {x: 0, y: 0.83, z: 0}
 --- !u!82 &8663885937010874417
 AudioSource:
   m_ObjectHideFlags: 0
@@ -1014,7 +1017,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0
+      value: 1
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -1054,6 +1057,19 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &1417664651244291489
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2238134855452268725}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2c4c33406b3c27b47ba7fb4c82a1f88e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  partsType: 1
 --- !u!1 &2267527495887678139
 GameObject:
   m_ObjectHideFlags: 0
@@ -2256,6 +2272,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 84217711549623540}
+  - component: {fileID: 7303137585102001003}
+  - component: {fileID: 9065343056806680189}
   m_Layer: 0
   m_Name: Head
   m_TagString: Untagged
@@ -2278,6 +2296,33 @@ Transform:
   m_Father: {fileID: 4043236967954839052}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!136 &7303137585102001003
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6715165666977743406}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  m_Radius: 0.23
+  m_Height: 0.3
+  m_Direction: 1
+  m_Center: {x: 0, y: 0.07, z: 0}
+--- !u!114 &9065343056806680189
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6715165666977743406}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2c4c33406b3c27b47ba7fb4c82a1f88e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  partsType: 0
 --- !u!1 &6980733619188432952
 GameObject:
   m_ObjectHideFlags: 0

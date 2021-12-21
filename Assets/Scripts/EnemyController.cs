@@ -24,7 +24,7 @@ public class EnemyController : MonoBehaviour
     private AudioSource audioSource;
 
     [SerializeField]
-    private AudioClip clip;
+    private AudioClip voiceSE,attackSE,runSE;
 
     private CharacterState state = CharacterState.Idle;
 
@@ -32,8 +32,7 @@ public class EnemyController : MonoBehaviour
 
     public int attackDamage;
 
-    [SerializeField]
-    private int point;
+    public int point;
 
     private UIManager uiManager;
 
@@ -69,7 +68,8 @@ public class EnemyController : MonoBehaviour
                 //ìGÇÃãóó£Ç™15ÇÊÇËè¨Ç≥Ç¢Ç∆Ç´ëñÇ¡Çƒí«ê’
                 if (DistanceToPlayer() < 30)
                 {
-                    PlayZombieSE();
+                    PlayZombieSE(voiceSE);
+                    PlayZombieRunSE();
                     state = CharacterState.Run;
                 }
 
@@ -87,7 +87,8 @@ public class EnemyController : MonoBehaviour
                 if (DistanceToPlayer() < 30)
                 {
                     agent.ResetPath();
-                    PlayZombieSE();
+                    PlayZombieSE(voiceSE);
+                    PlayZombieRunSE();
                     state = CharacterState.Run;
                 }
 
@@ -121,7 +122,8 @@ public class EnemyController : MonoBehaviour
                     {
                         railMoveController.Stop();
                     }
-                    PlayZombieSE();
+                    StopZombieRunSE();
+                    PlayZombieSE(voiceSE);
                     state = CharacterState.Attack;
                 }
                 else if (DistanceToPlayer() < 30)
@@ -133,6 +135,7 @@ public class EnemyController : MonoBehaviour
                 }
                 else
                 {
+                    StopZombieRunSE();
                     agent.ResetPath();
                     state = CharacterState.Walk;
                 }
@@ -181,7 +184,7 @@ public class EnemyController : MonoBehaviour
     /// ìGÇì|Ç∑
     /// </summary>
     /// <param name="gameManager"></param>
-    public IEnumerator DestroyEnemy(GameManager gameManager)
+    public IEnumerator DestroyEnemy(GameManager gameManager,int point)
     {
         enemyCol.enabled = false;
         animationManager.TurnOffTrigger(anim);
@@ -212,6 +215,7 @@ public class EnemyController : MonoBehaviour
     {
         if (target != null)
         {
+            PlayZombieSE(attackSE);
             target.GetComponent<PlayerController>().TakeHit(attackDamage);
         }
     }
@@ -225,16 +229,34 @@ public class EnemyController : MonoBehaviour
         return Vector3.Distance(target.gameObject.transform.position, transform.position);
     }
 
-    private void PlayZombieSE()
+    private void PlayZombieSE(AudioClip clip)
     {
         audioSource.clip = clip;
         audioSource.Play();
+    }
+
+    public void PlayZombieRunSE()
+    {
+        audioSource.loop = true;
+
+        audioSource.pitch = 1f;
+
+        audioSource.clip = runSE;
+
+        audioSource.Play();
+
+    }
+
+    public void StopZombieRunSE()
+    {
+        audioSource.Stop();
+
+        audioSource.loop = false;
     }
 
     private void StopZombieSE()
     {
         audioSource.Stop();
     }
-
 
 }
