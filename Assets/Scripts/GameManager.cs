@@ -71,12 +71,13 @@ public class GameManager : MonoBehaviour
     /// <summary>
     /// すべての敵が倒れたか確認
     /// </summary>
-    public void CheckFinishEvent()
+    public IEnumerator CheckFinishEvent()
     {
         //EnemyGeneratorによって生成された敵が全て倒れたか確認する
         if (enemiesList.Count <= 0 && enemyGenerators[eventNo].isFinish == true)
         {
             currentGameState = GameState.Move;
+            yield return new WaitForSeconds(3.0f);
             railMoveController.Resume();
             eventNo++;
             Debug.Log("イベント終了");

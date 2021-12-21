@@ -8,9 +8,14 @@ public class UIManager : MonoBehaviour
     [SerializeField]
     private PlayerController playerController;
 
-    public Text textAmmo;
+    [SerializeField]
+    private Text textAmmo;
 
-    public Slider hpBar;
+    [SerializeField]
+    private Slider hpBar;
+
+    [SerializeField]
+    private Text textScore;
 
     public void UpdateDisplayAmmunition()
     {
@@ -20,5 +25,10 @@ public class UIManager : MonoBehaviour
     public void UpdateDisplayHP()
     {
         hpBar.value = playerController.playerHP;
+    }
+
+    public void UpdateDisplayScore()
+    {
+        textScore.text = DataBaseManager.instance.score.ToString();
     }
 }

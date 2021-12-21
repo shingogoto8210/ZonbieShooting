@@ -20,11 +20,22 @@ public class EnemyController : MonoBehaviour
 
     private RailMoveController railMoveController;
 
+    [SerializeField]
+    private AudioSource audioSource;
+
+    [SerializeField]
+    private AudioClip clip;
+
     private CharacterState state = CharacterState.Idle;
 
     private float walkSpeed = 1.0f, runSpeed = 3.0f;
 
     public int attackDamage;
+
+    [SerializeField]
+    private int point;
+
+    private UIManager uiManager;
 
     private void Start()
     {
@@ -35,6 +46,7 @@ public class EnemyController : MonoBehaviour
         if (!GameObject.FindGameObjectWithTag("Player").TryGetComponent(out target)) Debug.Log("AnimationManager–¢æ“¾");
         railMoveController = target.transform.gameObject.GetComponent<RailMoveController>();
         gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
+        uiManager = GameObject.Find("UIManager").GetComponent<UIManager>();
     }
 
     private void Update()
@@ -57,6 +69,7 @@ public class EnemyController : MonoBehaviour
                 //“G‚Ì‹——£‚ª15‚æ‚è¬‚³‚¢‚Æ‚«‘–‚Á‚Ä’ÇÕ
                 if (DistanceToPlayer() < 30)
                 {
+                    PlayZombieSE();
                     state = CharacterState.Run;
                 }
 
@@ -74,6 +87,7 @@ public class EnemyController : MonoBehaviour
                 if (DistanceToPlayer() < 30)
                 {
                     agent.ResetPath();
+                    PlayZombieSE();
                     state = CharacterState.Run;
                 }
 
@@ -107,6 +121,7 @@ public class EnemyController : MonoBehaviour
                     {
                         railMoveController.Stop();
                     }
+                    PlayZombieSE();
                     state = CharacterState.Attack;
                 }
                 else if (DistanceToPlayer() < 30)
@@ -126,6 +141,10 @@ public class EnemyController : MonoBehaviour
 
             case CharacterState.Attack:
 
+                if (railMoveController.isStop == false)
+                {
+                    railMoveController.Stop();
+                }
                 animationManager.TurnOffTrigger(anim);
                 animationManager.PlayAnimation(anim, CharacterState.Attack, true);
 
@@ -138,8 +157,7 @@ public class EnemyController : MonoBehaviour
 
             case CharacterState.Dead:
 
-                
-
+                StopZombieSE();
                 Destroy(agent);
 
                 break;
@@ -163,16 +181,19 @@ public class EnemyController : MonoBehaviour
     /// “G‚ğ“|‚·
     /// </summary>
     /// <param name="gameManager"></param>
-    public void DestroyEnemy(GameManager gameManager)
+    public IEnumerator DestroyEnemy(GameManager gameManager)
     {
         enemyCol.enabled = false;
         animationManager.TurnOffTrigger(anim);
         animationManager.PlayAnimation(anim, CharacterState.Dead, true);
         state = CharacterState.Dead;
+        DataBaseManager.instance.score += point;
+        uiManager.UpdateDisplayScore();
 
         //ƒCƒxƒ“ƒg‚Å‚Í‚È‚­AƒvƒŒƒCƒ„[‚ª~‚Ü‚Á‚Ä‚¢‚é‚Æ‚«i“G‚É•ß‚Ü‚Á‚Ä‚¢‚é‚Æ‚«j
         if (railMoveController.isStop == true && gameManager.currentGameState == GameState.Move)
         {
+            yield return new WaitForSeconds(1.0f);
             //“G‚ğ“|‚µ‚½‚ç‚Ü‚½“®‚¯‚é
             railMoveController.Resume();
         }
@@ -180,7 +201,7 @@ public class EnemyController : MonoBehaviour
         if (gameManager.currentGameState == GameState.Event)
         {
             gameManager.enemiesList.Remove(this);
-            gameManager.CheckFinishEvent();
+            StartCoroutine(gameManager.CheckFinishEvent());
         }
     }
 
@@ -203,5 +224,17 @@ public class EnemyController : MonoBehaviour
     {
         return Vector3.Distance(target.gameObject.transform.position, transform.position);
     }
+
+    private void PlayZombieSE()
+    {
+        audioSource.clip = clip;
+        audioSource.Play();
+    }
+
+    private void StopZombieSE()
+    {
+        audioSource.Stop();
+    }
+
 
 }

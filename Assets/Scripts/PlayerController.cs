@@ -231,7 +231,7 @@ public class PlayerController : MonoBehaviour
 
         if (playerHP < 0 && gameManager.currentGameState != GameState.GameOver)
         {
-            gameManager.currentGameState = GameState.GameOver;
+            gameManager.GameOver();
         }
     }
 

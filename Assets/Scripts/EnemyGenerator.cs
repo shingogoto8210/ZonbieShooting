@@ -33,7 +33,11 @@ public class EnemyGenerator : MonoBehaviour
 
             // ランダムで敵の発生地点を決める
             int randomTran = Random.Range(0, enemyTrans.Length);
-            EnemyController enemy = Instantiate(enemyPrefab, enemyTrans[randomTran]);
+            int randomX = Random.Range(-3, 3);
+            int randomZ = Random.Range(-3, 3);
+
+            Quaternion rot = Quaternion.Euler(0, 180, 0);
+            EnemyController enemy = Instantiate(enemyPrefab, new Vector3(enemyTrans[randomTran].position.x + randomX, enemyTrans[randomTran].position.y, enemyTrans[randomTran].position.z + randomZ),rot);
             enemyCount++;
 
             // gameManagerの敵リストに追加

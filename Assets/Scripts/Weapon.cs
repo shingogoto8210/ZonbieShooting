@@ -99,7 +99,7 @@ public class Weapon : MonoBehaviour
             //オブジェクトがEnemyControllerを持っていたら
             if (hitInfo.collider.gameObject.TryGetComponent(out EnemyController enemy))
             {
-                enemy.DestroyEnemy(gameManager);
+                StartCoroutine(enemy.DestroyEnemy(gameManager));
                 //Debug.Log("射撃");
             }
             //else if(hitInfo.collider.gameObject != null)
