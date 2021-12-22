@@ -8,20 +8,22 @@ public class PartsTypeDetail : MonoBehaviour
 
     public void HitCheckParts(GameManager gameManager)
     {
+        
+        EnemyController enemy = this.transform.root.gameObject.GetComponent<EnemyController>();
+        int damage = enemy.point;
         if (this.partsType == PartsType.head)
         {
             CapsuleCollider enemyCol = this.GetComponent<CapsuleCollider>();
             enemyCol.enabled = false;
-            EnemyController enemy = this.transform.root.gameObject.GetComponent<EnemyController>();
-            StartCoroutine(enemy.DestroyEnemy(gameManager, enemy.point * 5));
-            Debug.Log("headŽËŒ‚");
-
+            damage = enemy.point * 5;
         }
-        else if (this.partsType == PartsType.body)
-        {
-            EnemyController enemyController = this.transform.gameObject.GetComponent<EnemyController>();
-            StartCoroutine(enemyController.DestroyEnemy(gameManager, enemyController.point));
-            Debug.Log("bodyŽËŒ‚");
-        }
+        //else if (this.partsType == PartsType.body)
+        //{
+        //    EnemyController enemyController = this.transform.gameObject.GetComponent<EnemyController>();
+        //    StartCoroutine(enemyController.DestroyEnemy(gameManager, enemyController.point));
+        //    Debug.Log("bodyŽËŒ‚");
+        //}
+        StartCoroutine(enemy.DestroyEnemy(gameManager, damage));
+        Debug.Log(partsType.ToString() + "ŽËŒ‚");
     }
 }
