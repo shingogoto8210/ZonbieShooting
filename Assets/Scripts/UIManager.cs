@@ -19,7 +19,10 @@ public class UIManager : MonoBehaviour
     private Text textScore;
 
     [SerializeField]
-    private CanvasGroup canvas;
+    private CanvasGroup canvasGameStart;
+
+    [SerializeField]
+    private CanvasGroup canvasGameOver;
 
    
     public void UpdateDisplayAmmunition()
@@ -37,13 +40,20 @@ public class UIManager : MonoBehaviour
         textScore.text = DataBaseManager.instance.score.ToString();
     }
 
-    public IEnumerator GameStart()
+    public IEnumerator GameStartLogo()
     {
-        canvas.alpha = 0;
+        canvasGameStart.alpha = 0;
 
         Sequence sequence = DOTween.Sequence();
-        sequence.Append(canvas.DOFade(1.0f, 3.0f));
-        sequence.Append(canvas.DOFade(0.0f, 3.0f));
+        sequence.Append(canvasGameStart.DOFade(1.0f, 3.0f));
+        sequence.Append(canvasGameStart.DOFade(0.0f, 3.0f));
         yield return new WaitForSeconds(5.0f);
+    }
+
+    public void GameOverLogo()
+    {
+        canvasGameOver.alpha = 0;
+
+        canvasGameOver.DOFade(1.0f, 3.0f);
     }
 }

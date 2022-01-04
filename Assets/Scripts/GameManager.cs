@@ -40,7 +40,7 @@ public class GameManager : MonoBehaviour
         weapon.SetUpWeapon(this,playerController);
 
         //演出
-        yield return StartCoroutine(uiManager.GameStart());
+        yield return StartCoroutine(uiManager.GameStartLogo());
 
         //ゲームの状態（プレイ中）
         Debug.Log("ゲーム開始");
@@ -95,6 +95,8 @@ public class GameManager : MonoBehaviour
 
         //ゲーム終了
         currentGameState = GameState.GameOver;
+
+        uiManager.GameOverLogo();
 
         //tweenをKill
         railMoveController.KillTween();
