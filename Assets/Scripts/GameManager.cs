@@ -28,7 +28,7 @@ public class GameManager : MonoBehaviour
 
     private int eventNo = 0;
 
-    void Start()
+    IEnumerator Start()
     {
         //ゲームの状態（準備中）
         currentGameState = GameState.Wait;
@@ -39,9 +39,12 @@ public class GameManager : MonoBehaviour
         playerController.SetUpPlayerController(uiManager);
         weapon.SetUpWeapon(this,playerController);
 
+        //演出
+        yield return StartCoroutine(uiManager.GameStart());
+
         //ゲームの状態（プレイ中）
-        currentGameState = GameState.Move;
         Debug.Log("ゲーム開始");
+        currentGameState = GameState.Move;
 
         //移動開始
         railMoveController.Move();
@@ -102,4 +105,6 @@ public class GameManager : MonoBehaviour
         Debug.Log("ゲーム終了");
 
     }
+
+    
 }

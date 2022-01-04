@@ -44,77 +44,86 @@ public class PlayerController : MonoBehaviour
     private void Update()
     {
 
-        //マウスを動かして視点切りかえ
-        float xRot = Input.GetAxis("Mouse X") * Ysensitivity;
-        float yRot = Input.GetAxis("Mouse Y") * Xsensitivity;
-
-        cameraRot *= Quaternion.Euler(-yRot, 0, 0);
-        characterRot *= Quaternion.Euler(0, xRot, 0);
-
-        cameraRot = ClampRotation(cameraRot);
-
-        mainCamera.transform.localRotation = cameraRot;
-        transform.localRotation = characterRot;
-
         //カーソルの表示切替
         UpdateCursorLock();
 
-        //左クリックすると銃を撃てる
-        if (Input.GetMouseButton(0) && Weapon.instance.canShoot && gameManager.currentGameState != GameState.GameOver)
+        if (gameManager.currentGameState == GameState.GameOver)
         {
-            //マガジン内に弾が入っているとき
-            if (ammoClip > 0)
-            {
-                //animationManager.PlayAnimation(anim, CharacterState.Walk,false);
-                animationManager.PlayAnimation(anim, CharacterState.Fire);
-
-                Weapon.instance.canShoot = false;
-
-                //マガジン内の弾を減らす
-                ammoClip--;
-
-                //UI更新
-                uiManager.UpdateDisplayAmmunition();
-            }
-            else
-            {
-                //Debug.Log("弾切れ");
-
-                //Trigger音
-                Weapon.instance.TriggerSE();
-            }
+            return;
         }
 
-        //イベント中にRボタンを押すとリロード
-        if (Input.GetKeyDown(KeyCode.R) && gameManager.currentGameState != GameState.GameOver)
+        if (gameManager.currentGameState != GameState.Wait )
         {
+            //マウスを動かして視点切りかえ
+            float xRot = Input.GetAxis("Mouse X") * Ysensitivity;
+            float yRot = Input.GetAxis("Mouse Y") * Xsensitivity;
 
-            //マガジン内に弾が追加で何発入るか計算
-            int amountNeed = maxAmmoClip - ammoClip;
+            cameraRot *= Quaternion.Euler(-yRot, 0, 0);
+            characterRot *= Quaternion.Euler(0, xRot, 0);
 
-            //マガジン内に入れるべき弾数と所持弾薬数を比較する
-            int ammoAvailable = amountNeed < ammunition ? amountNeed : ammunition;
+            cameraRot = ClampRotation(cameraRot);
 
-            if (amountNeed != 0 && ammunition != 0)
+            mainCamera.transform.localRotation = cameraRot;
+            transform.localRotation = characterRot;
+
+            //左クリックすると銃を撃てる
+            if (Input.GetMouseButton(0) && Weapon.instance.canShoot)
             {
-                isReloading = true;
-                animationManager.PlayAnimation(anim, CharacterState.Reload);
-                ammunition -= ammoAvailable;
-                ammoClip += ammoAvailable;
-                uiManager.UpdateDisplayAmmunition();
-            }
-        }
+                //マガジン内に弾が入っているとき
+                if (ammoClip > 0)
+                {
+                    //animationManager.PlayAnimation(anim, CharacterState.Walk,false);
+                    animationManager.PlayAnimation(anim, CharacterState.Fire);
 
-        //右クリックしている間，覗き込み
-        if (Input.GetMouseButton(1) && isReloading == false && gameManager.currentGameState != GameState.GameOver)
-        {
-            subCamera.SetActive(true);
-            camCom.enabled = false;
-        }
-        else if (subCamera.activeSelf)
-        {
-            subCamera.SetActive(false);
-            camCom.enabled = true;
+                    Weapon.instance.canShoot = false;
+
+                    //マガジン内の弾を減らす
+                    ammoClip--;
+
+                    //UI更新
+                    uiManager.UpdateDisplayAmmunition();
+                }
+                else
+                {
+                    //Debug.Log("弾切れ");
+
+                    //Trigger音
+                    Weapon.instance.TriggerSE();
+                }
+            }
+
+            //イベント中にRボタンを押すとリロード
+            if (Input.GetKeyDown(KeyCode.R))
+            {
+
+                //マガジン内に弾が追加で何発入るか計算
+                int amountNeed = maxAmmoClip - ammoClip;
+
+                //マガジン内に入れるべき弾数と所持弾薬数を比較する
+                int ammoAvailable = amountNeed < ammunition ? amountNeed : ammunition;
+
+                if (amountNeed != 0 && ammunition != 0)
+                {
+                    isReloading = true;
+                    animationManager.PlayAnimation(anim, CharacterState.Reload);
+                    ammunition -= ammoAvailable;
+                    ammoClip += ammoAvailable;
+                    uiManager.UpdateDisplayAmmunition();
+                }
+            }
+
+            //右クリックしている間，覗き込み
+            if (Input.GetMouseButton(1) && isReloading == false)
+            {
+                subCamera.SetActive(true);
+                camCom.enabled = false;
+            }
+            else if (subCamera.activeSelf)
+            {
+                subCamera.SetActive(false);
+                camCom.enabled = true;
+            }
+
         }
 
 
